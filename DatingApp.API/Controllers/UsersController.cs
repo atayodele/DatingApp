@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.Dto;
+using DatingApp.API.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DatingApp.API.Controllers
 {
+    [ServiceFilter(typeof(LogUserActivity))]
     [Authorize]
     [Route("api/[controller]")]
-    [ApiController]
     public class UsersController : ControllerBase
     {
         private readonly IDatingRepository _repo;
@@ -27,13 +28,14 @@ namespace DatingApp.API.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers(UserParams userParams)
         {
-            var users = await _repo.GetUsers();
+            var users = await _repo.GetUsers(userParams);
             var userToReturn = _mapper.Map<IEnumerable<UserForListDto>>(users);
-            return Ok(userToReturn); 
+            Response.AddPagination(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages);
+            return Ok(userToReturn);
         }
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name ="GetUser")]
         public async Task<IActionResult> GetUser(int id)
         {
             var user = await _repo.GetUser(id);
@@ -58,5 +60,14 @@ namespace DatingApp.API.Controllers
                 return NoContent();
             throw new Exception($"Updating user {id} failed on save");
         }
+
+
+        //before pagination 
+        //public async Task<IActionResult> GetUsers()
+        //{
+        //    var users = await _repo.GetUsers();
+        //    var userToReturn = _mapper.Map<IEnumerable<UserForListDto>>(users);
+        //    return Ok(userToReturn); 
+        //}
     }
 }

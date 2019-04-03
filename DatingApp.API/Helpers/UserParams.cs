@@ -18,7 +18,8 @@ namespace DatingApp.API.Helpers
             set { pageSize = (value > MaxPageSize) ? MaxPageSize : value; }
         }
         public int UserId { get; set; }
-        public bool Likees { get; set; }
-        public bool Likers { get; set; }
+        public string OrderBy { get; set; }
+        public bool Likees { get; set; } = false;
+        public bool Likers { get; set; } = false;
     }
 }

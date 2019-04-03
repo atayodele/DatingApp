@@ -63,6 +63,18 @@ namespace DatingApp.API.Data
                 var userLikees = await GetUserLikes(userParams.UserId, userParams.Likers);
                 users = users.Where(u => userLikees.Any(likee => likee.LikeeId == u.Id));
             }
+            if (!string.IsNullOrEmpty(userParams.OrderBy))
+            {
+                switch (userParams.OrderBy)
+                {
+                    case "created":
+                        users = users.OrderByDescending(u => u.Created);
+                        break;
+                    default:
+                        users = users.OrderByDescending(u => u.LastActive);
+                        break;
+                }
+            }
             return await PagedList<User>.CreateAsync(users, userParams.PageNumber, userParams.PageSize);
         }
 
